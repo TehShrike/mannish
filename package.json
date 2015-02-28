@@ -1,0 +1,23 @@
+{
+  "name": "mannish",
+  "version": "1.0.0",
+  "description": "Mannish, the Manly Mediator",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TehShrike/mannish.git"
+  },
+  "keywords": [
+    "mediator",
+    "browserify"
+  ],
+  "author": "TehShrike",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/TehShrike/mannish/issues"
+  },
+  "homepage": "https://github.com/TehShrike/mannish"
+}
