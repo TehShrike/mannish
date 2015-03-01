@@ -44,7 +44,6 @@ function addListener(eventsToEventListeners, event, cb) {
 function callListeners(eventsToEventListeners, event, value) {
 	return new Promise(function(resolve, reject) {
 		if (eventsToEventListeners[event]) {
-			console.log(values(eventsToEventListeners[event]).length, 'listeners for', event)
 			values(eventsToEventListeners[event]).forEach(function(listener) {
 				listener(value).then(resolve, reject)
 			})
