@@ -19,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/TehShrike/mannish/issues"
   },
-  "homepage": "https://github.com/TehShrike/mannish"
+  "homepage": "https://github.com/TehShrike/mannish",
+  "devDependencies": {
+    "tape": "^3.5.0"
+  },
+  "dependencies": {
+    "promise": "^6.1.0"
+  }
 }
