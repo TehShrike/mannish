@@ -4,7 +4,7 @@
   "description": "Mannish, the Manly Mediator",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/*.js"
+    "test": "tape test.js"
   },
   "repository": {
     "type": "git",
