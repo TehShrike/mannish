@@ -36,7 +36,7 @@ If you want to use promises, then instead of calling the callback you can just r
 
 The callback function is totally optional.  You can publish data objects to the app without any need for a response.
 
-	module1Context.subscribe('flex', function(err, muscle) {
+	module1Context.subscribe('flex', function(muscle) {
 		muscle.squeeze()
 	})
 
