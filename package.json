@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/TehShrike/mannish",
   "devDependencies": {
-    "tape": "^3.5.0"
+    "tape": "^4.0.0"
   },
   "dependencies": {
-    "promise": "^6.1.0"
+    "promise": "^7.0.1"
   }
 }
