@@ -4,29 +4,26 @@ var nodeify = require('then-nodeify')
 
 module.exports = function createAppContext() {
 	var eventsToEventListeners = {}
+	var unsubscribeFunctions = []
 
-	return function createModuleContext(moduleName) {
-		var unsubscribeFunctions = []
+	function subscribe(event, cb) {
+		unsubscribeFunctions.push(addListener(eventsToEventListeners, event, cb))
+	}
 
-		function subscribe(event, cb) {
-			unsubscribeFunctions.push(addListener(eventsToEventListeners, event, cb))
-		}
+	function publish(event, value) {
+		return callListeners(eventsToEventListeners, event, value)
+	}
 
-		function publish(event, value) {
-			return callListeners(eventsToEventListeners, event, value)
-		}
+	function removeAllListeners() {
+		unsubscribeFunctions.forEach(function(fn) {
+			fn()
+		})
+	}
 
-		function removeAllListeners() {
-			unsubscribeFunctions.forEach(function(fn) {
-				fn()
-			})
-		}
-
-		return {
-			subscribe: subscribe,
-			publish: nodeify(publish),
-			removeAllListeners: removeAllListeners
-		}
+	return {
+		subscribe: subscribe,
+		publish: nodeify(publish),
+		removeAllListeners: removeAllListeners
 	}
 }
 
