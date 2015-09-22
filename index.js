@@ -1,4 +1,6 @@
-var Promise = require('promise')
+var Promise = require('native-promise-only')
+var denodeify = require('then-denodeify')
+var nodeify = require('then-nodeify')
 
 module.exports = function createAppContext() {
 	var eventsToEventListeners = {}
@@ -22,7 +24,7 @@ module.exports = function createAppContext() {
 
 		return {
 			subscribe: subscribe,
-			publish: Promise.nodeify(publish),
+			publish: nodeify(publish),
 			removeAllListeners: removeAllListeners
 		}
 	}
@@ -34,7 +36,7 @@ function addListener(eventsToEventListeners, event, cb) {
 		eventsToEventListeners[event] = {}
 	}
 
-	eventsToEventListeners[event][id] = Promise.denodeify(cb)
+	eventsToEventListeners[event][id] = denodeify(cb)
 
 	return function unsubscribe() {
 		delete eventsToEventListeners[event][id]
