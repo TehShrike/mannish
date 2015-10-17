@@ -20,9 +20,13 @@ module.exports = function createAppContext() {
 		})
 	}
 
+	var promiseyPublish = nodeify(publish)
+
 	return {
 		subscribe: subscribe,
-		publish: nodeify(publish),
+		provide: subscribe,
+		publish: promiseyPublish,
+		request: promiseyPublish,
 		removeAllListeners: removeAllListeners
 	}
 }

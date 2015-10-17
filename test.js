@@ -35,6 +35,17 @@ test('response style', function(t) {
 	})
 })
 
+test('aliases', function(t) {
+	t.plan(2)
+
+	var app = mannish()
+
+	t.equal(app.subscribe, app.provide)
+	t.equal(app.publish, app.request)
+
+	t.end()
+})
+
 test('error response', function(t) {
 	t.plan(2)
 
