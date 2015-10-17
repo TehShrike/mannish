@@ -1,6 +1,6 @@
 {
   "name": "mannish",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Mannish, the Manly Mediator",
   "main": "index.js",
   "scripts": {
