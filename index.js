@@ -6,12 +6,25 @@ module.exports = function createAppContext() {
 	var eventsToEventListeners = {}
 	var unsubscribeFunctions = []
 
+	function callListeners(event) {
+		var args = []
+		for (var i = 1; i < arguments.length; ++i) {
+			var isCallbackFunction = i === arguments.length - 1 && typeof arguments[i] === 'function'
+
+			if (!isCallbackFunction) {
+				args.push(arguments[i])
+			}
+		}
+		return new Promise(function(resolve, reject) {
+			if (eventsToEventListeners[event]) {
+				values(eventsToEventListeners[event]).forEach(function(listener) {
+					listener.apply(null, args).then(resolve, reject)
+				})
+			}
+		})
+	}
 	function subscribe(event, cb) {
 		unsubscribeFunctions.push(addListener(eventsToEventListeners, event, cb))
-	}
-
-	function publish(event, value) {
-		return callListeners(eventsToEventListeners, event, value)
 	}
 
 	function removeAllListeners() {
@@ -20,7 +33,7 @@ module.exports = function createAppContext() {
 		})
 	}
 
-	var promiseyPublish = nodeify(publish)
+	var promiseyPublish = nodeify(callListeners)
 
 	return {
 		subscribe: subscribe,
@@ -42,16 +55,6 @@ function addListener(eventsToEventListeners, event, cb) {
 	return function unsubscribe() {
 		delete eventsToEventListeners[event][id]
 	}
-}
-
-function callListeners(eventsToEventListeners, event, value) {
-	return new Promise(function(resolve, reject) {
-		if (eventsToEventListeners[event]) {
-			values(eventsToEventListeners[event]).forEach(function(listener) {
-				listener(value).then(resolve, reject)
-			})
-		}
-	})
 }
 
 function values(obj) {

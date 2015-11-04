@@ -68,7 +68,7 @@ test('removes listeners', function(t) {
 	var aCalled = 0
 
 	app.subscribe('burrito', function() {
-		t.equal(aCalled, 0, "a's subscription should only be called once")
+		t.equal(aCalled, 0, "burrito's subscription should only be called once")
 		aCalled++
 		t.end()
 	})
@@ -77,4 +77,37 @@ test('removes listeners', function(t) {
 	app.removeAllListeners()
 
 	app.publish('burrito')
+})
+
+test('multiple arguments', function(t) {
+	var app = mannish()
+
+	app.subscribe('taco', function(first, second, cb) {
+		t.equal(first, 'first')
+		t.equal(second, 'second')
+		cb('response')
+	})
+	app.publish('taco', 'first', 'second', function(response) {
+		t.equal(response, 'response')
+		t.end()
+	})
+})
+
+test('multiple arguments, several of which are functions', function(t) {
+	var app = mannish()
+
+	function one() {}
+	function two() {}
+
+	app.subscribe('taco', function(first, second, argone, argtwo, cb) {
+		t.equal(first, 'first')
+		t.equal(second, 'second')
+		t.equal(argone, one)
+		t.equal(argtwo, two)
+		cb('response')
+	})
+	app.publish('taco', 'first', 'second', one, two, function(response) {
+		t.equal(response, 'response')
+		t.end()
+	})
 })
