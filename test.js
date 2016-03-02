@@ -96,11 +96,13 @@ test('remove single listener', function(t) {
 		cb(null, bCalled)
 	})
 
-	app.publish('burrito', (err, bResponse) => t.equal(bResponse, 1))
+	app.publish('burrito', function(err, bResponse) {
+		t.equal(bResponse, 1)
+	})
 
 	unsubscribeA()
 
-	app.publish('burrito', (err, bResponse) => {
+	app.publish('burrito', function(err, bResponse) {
 		t.equal(bResponse, 2)
 		t.equal(bCalled, 2, "burrito's B subscription should be called twice")
 		t.end()
