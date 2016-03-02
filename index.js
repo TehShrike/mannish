@@ -24,7 +24,15 @@ module.exports = function createAppContext() {
 		})
 	}
 	function subscribe(event, cb) {
-		unsubscribeFunctions.push(addListener(eventsToEventListeners, event, cb))
+		var unsubscribeEvent = addListener(eventsToEventListeners, event, cb)
+		unsubscribeFunctions.push(unsubscribeEvent)
+		return function unsubscribe() {
+			unsubscribeEvent()
+			var index = unsubscribeFunctions.indexOf(unsubscribeEvent)
+			if (index !== -1) {
+				unsubscribeFunctions.splice(index, 1)
+			}
+		}
 	}
 
 	function removeAllListeners() {

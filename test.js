@@ -79,6 +79,34 @@ test('removes listeners', function(t) {
 	app.publish('burrito')
 })
 
+test('remove single listener', function(t) {
+	var app = mannish()
+
+	t.plan(4)
+
+	var aCalled = 0
+	var bCalled = 0
+
+	var unsubscribeA = app.subscribe('burrito', function() {
+		aCalled++
+		t.equal(aCalled, 1, "burrito's A subscription should only be called once")
+	})
+	app.subscribe('burrito', function(cb) {
+		bCalled++
+		cb(null, bCalled)
+	})
+
+	app.publish('burrito', (err, bResponse) => t.equal(bResponse, 1))
+
+	unsubscribeA()
+
+	app.publish('burrito', (err, bResponse) => {
+		t.equal(bResponse, 2)
+		t.equal(bCalled, 2, "burrito's B subscription should be called twice")
+		t.end()
+	})
+})
+
 test('multiple arguments', function(t) {
 	var app = mannish()
 
