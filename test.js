@@ -1,10 +1,10 @@
-var test = require('tape')
-var mannish = require('./')
+const test = require('tape')
+const mannish = require('./')
 
-test('basic event-style', function(t) {
+test('basic event-style', t => {
 	t.plan(1)
 
-	var app = mannish()
+	const app = mannish()
 
 	app.subscribe('book', function(book) {
 		t.equal(book, 'enchiridion')
@@ -18,10 +18,10 @@ test('basic event-style', function(t) {
 	app.publish('book', 'enchiridion')
 })
 
-test('response style', function(t) {
+test('response style', t => {
 	t.plan(3)
 
-	var app = mannish()
+	const app = mannish()
 
 	app.subscribe('book', function(book, cb) {
 		t.equal(book, 'enchiridion')
@@ -35,10 +35,10 @@ test('response style', function(t) {
 	})
 })
 
-test('aliases', function(t) {
+test('aliases', t => {
 	t.plan(2)
 
-	var app = mannish()
+	const app = mannish()
 
 	t.equal(app.subscribe, app.provide)
 	t.equal(app.publish, app.request)
@@ -46,10 +46,10 @@ test('aliases', function(t) {
 	t.end()
 })
 
-test('error response', function(t) {
+test('error response', t => {
 	t.plan(2)
 
-	var app = mannish()
+	const app = mannish()
 
 	app.subscribe('loot', function(location, cb) {
 		cb(new Error('skeleton'))
@@ -62,10 +62,10 @@ test('error response', function(t) {
 	})
 })
 
-test('removes listeners', function(t) {
-	var app = mannish()
+test('removes listeners', t => {
+	const app = mannish()
 
-	var aCalled = 0
+	let aCalled = 0
 
 	app.subscribe('burrito', function() {
 		t.equal(aCalled, 0, "burrito's subscription should only be called once")
@@ -79,15 +79,15 @@ test('removes listeners', function(t) {
 	app.publish('burrito')
 })
 
-test('remove single listener', function(t) {
-	var app = mannish()
+test('remove single listener', t => {
+	const app = mannish()
 
 	t.plan(4)
 
-	var aCalled = 0
-	var bCalled = 0
+	let aCalled = 0
+	let bCalled = 0
 
-	var unsubscribeA = app.subscribe('burrito', function() {
+	const unsubscribeA = app.subscribe('burrito', function() {
 		aCalled++
 		t.equal(aCalled, 1, "burrito's A subscription should only be called once")
 	})
@@ -109,8 +109,8 @@ test('remove single listener', function(t) {
 	})
 })
 
-test('multiple arguments', function(t) {
-	var app = mannish()
+test('multiple arguments', t => {
+	const app = mannish()
 
 	app.subscribe('taco', function(first, second, cb) {
 		t.equal(first, 'first')
@@ -123,8 +123,8 @@ test('multiple arguments', function(t) {
 	})
 })
 
-test('multiple arguments, several of which are functions', function(t) {
-	var app = mannish()
+test('multiple arguments, several of which are functions', t => {
+	const app = mannish()
 
 	function one() {}
 	function two() {}

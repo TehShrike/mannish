@@ -24,7 +24,6 @@
     "tape": "^4.0.0"
   },
   "dependencies": {
-    "native-promise-only": "0.8.1",
     "then-denodeify": "1.0.0",
     "then-nodeify": "1.0.0"
   }

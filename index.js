@@ -1,34 +1,36 @@
-var Promise = require('native-promise-only')
-var denodeify = require('then-denodeify')
-var nodeify = require('then-nodeify')
+const denodeify = require('then-denodeify')
+const nodeify = require('then-nodeify')
 
 module.exports = function createAppContext() {
-	var eventsToEventListeners = {}
-	var unsubscribeFunctions = []
+	const eventsToEventListeners = Object.create(null)
+	const unsubscribeFunctions = []
 
-	function callListeners(event) {
-		var args = []
-		for (var i = 1; i < arguments.length; ++i) {
-			var isCallbackFunction = i === arguments.length - 1 && typeof arguments[i] === 'function'
+	function callListeners(event, ...eventArguments) {
+		const args = []
+
+		eventArguments.forEach((argument, i) => {
+			const isCallbackFunction = i === eventArguments.length - 1 && typeof argument === 'function'
 
 			if (!isCallbackFunction) {
-				args.push(arguments[i])
+				args.push(argument)
 			}
-		}
-		return new Promise(function(resolve, reject) {
+		})
+
+		return new Promise((resolve, reject) => {
 			if (eventsToEventListeners[event]) {
-				values(eventsToEventListeners[event]).forEach(function(listener) {
-					listener.apply(null, args).then(resolve, reject)
+				values(eventsToEventListeners[event]).forEach(listener => {
+					listener(...args).then(resolve, reject)
 				})
 			}
 		})
 	}
 	function subscribe(event, cb) {
-		var unsubscribeEvent = addListener(eventsToEventListeners, event, cb)
+		const unsubscribeEvent = addListener(eventsToEventListeners, event, cb)
 		unsubscribeFunctions.push(unsubscribeEvent)
+
 		return function unsubscribe() {
 			unsubscribeEvent()
-			var index = unsubscribeFunctions.indexOf(unsubscribeEvent)
+			const index = unsubscribeFunctions.indexOf(unsubscribeEvent)
 			if (index !== -1) {
 				unsubscribeFunctions.splice(index, 1)
 			}
@@ -36,12 +38,10 @@ module.exports = function createAppContext() {
 	}
 
 	function removeAllListeners() {
-		unsubscribeFunctions.forEach(function(fn) {
-			fn()
-		})
+		unsubscribeFunctions.forEach(fn => fn())
 	}
 
-	var promiseyPublish = nodeify(callListeners)
+	const promiseyPublish = nodeify(callListeners)
 
 	return {
 		subscribe: subscribe,
@@ -53,7 +53,7 @@ module.exports = function createAppContext() {
 }
 
 function addListener(eventsToEventListeners, event, cb) {
-	var id = Math.random().toString().slice(2)
+	const id = Math.random().toString().slice(2)
 	if (!eventsToEventListeners[event]) {
 		eventsToEventListeners[event] = {}
 	}
@@ -66,7 +66,5 @@ function addListener(eventsToEventListeners, event, cb) {
 }
 
 function values(obj) {
-	return Object.keys(obj).map(function(key) {
-		return obj[key]
-	})
+	return Object.keys(obj).map(key => obj[key])
 }
