@@ -1,5 +1,7 @@
 # Mannish the Manly Mediator
 
+![](mannish.jpg)
+
 This is a fairly specific implementation of the mediator pattern - given a string name, it calls a function and returns a promise with the functions response.
 
 It accomplishes the same goals as many dependency injection libraries, but focuses only on functions, and always returning asynchronous responses.
