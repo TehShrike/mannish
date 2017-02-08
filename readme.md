@@ -2,34 +2,13 @@
 
 ![](mannish.jpg)
 
-This is a fairly specific implementation of the mediator pattern - given a string name, it calls a function and returns a promise with the functions response.
+This is a fairly specific implementation of the mediator pattern - given a string name, it calls a function and returns a promise with the function's response.
 
 It accomplishes the same goals as many dependency injection libraries, but focuses only on functions, and always returning asynchronous responses.
 
 Originally inspired by Nicholas Zakas's talk on "[Creating A Scalable JavaScript Application Architecture](http://youtu.be/b5pFv9NB9fs)", this library fills the role of what he called the "sandbox" more closely than it serves the purpose he had for the mediator pattern.
 
-If you want a similar library to be used for broadcasting (something Mannish supported in older versions), I would recommend something like:
-
-```js
-function makeBroadcaster() {
-	const emitter = new EventEmitter()
-
-	return {
-		emit(...args) {
-			emitter.emit(...args)
-		},
-		on(name, listener) {
-			emitter.on(name, listener)
-
-			return function removeListener() {
-				emitter.removeListener(name, listener)
-			}
-		}
-	}
-}
-```
-
-Mannish focuses on calling single functions and getting a response back.
+Mannish focuses on decoupling the calling of functions and getting a response back.
 
 # API
 
@@ -54,6 +33,8 @@ mediator.provide('pie', recipe => {
 	return 'I am a sweet pie'
 })
 ```
+
+You can return either a plain value, or a promise/thenable.
 
 ## `promise = mediator.call(name, ...arguments)`
 

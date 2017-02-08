@@ -11,7 +11,7 @@ module.exports = function createMediator() {
 				return Promise.reject(err)
 			}
 		} else {
-			return Promise.reject(new Error(`No provider found for ${name}`))
+			return Promise.reject(new Error(`No provider found for "${name}"`))
 		}
 	}
 
@@ -21,7 +21,7 @@ module.exports = function createMediator() {
 		} else if (typeof name !== 'string') {
 			throw new Error(`The provider name must be a string`)
 		} else if (providers[name]) {
-			throw new Error(`There is already a provider for ${name}`)
+			throw new Error(`There is already a provider for "${name}"`)
 		} else {
 			providers[name] = fn
 		}
