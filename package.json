@@ -4,7 +4,7 @@
   "description": "Mannish, the Manly Mediator",
   "main": "index.js",
   "scripts": {
-    "test": "tape test.js && echo 'Testing readme examples...' && jsmd readme.md && echo 'All done!'"
+    "test": "tape test/*.js && echo 'Testing readme examples...' && jsmd readme.md && echo 'All done!'"
   },
   "repository": {
     "type": "git",

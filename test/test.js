@@ -1,7 +1,7 @@
 function test(name, fn) {
 	return require('tape')(name, { timeout: 1000 }, fn)
 }
-const mannish = require('./')
+const mannish = require('../')
 
 test('Basic functionality: should call the right function and get the response', t => {
 	t.plan(2)
@@ -47,39 +47,18 @@ test('Should receive rejected promise', t => {
 	})
 })
 
-test(`Should throw an error on 'call' if there is no listener`, t => {
+test(`Errors thrown in the provider should result in rejected responses`, t => {
 	const mediator = mannish()
 
-	mediator.call('unhandled').then(
-		() => t.fail('Should not have succeeded'),
-		err => {
-			t.ok(err instanceof Error, 'err is an Error')
-			t.ok(err.message.includes('No provider'))
-			t.end()
-		}
-	)
-})
+	mediator.provide('loot', function(location) {
+		throw new Error('monster')
+	})
 
-test(`Adding a second provider should cause an error`, t => {
-	const mediator = mannish()
-
-	mediator.provide('important', () => {})
-	t.throws(() => mediator.provide('important', () => {}), /already/)
-	t.end()
-})
-
-test(`Should throw an error if the provider is not a function`, t => {
-	const mediator = mannish()
-
-	t.throws(() => mediator.provide('important', 'o hai'), /not a function/)
-	t.end()
-})
-
-test(`Should throw an error if the name is not a string`, t => {
-	const mediator = mannish()
-
-	t.throws(() => mediator.provide({}, () => {}), /a string/)
-	t.end()
+	mediator.call('loot', 'from the dungeon please').catch(err => {
+		t.ok(err instanceof Error, 'err is an Error')
+		t.equal(err.message, 'monster')
+		t.end()
+	})
 })
 
 test('Should work with multiple arguments', t => {
