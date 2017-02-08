@@ -1,57 +1,77 @@
 # Mannish the Manly Mediator
 
-Inspired by Nicholas Zakas's talk on "[Creating A Scalable JavaScript Application Architecture](http://youtu.be/b5pFv9NB9fs)", this is a mediator to let modules communicate without tight coupling - for whatever "module" means to you.
+This is a fairly specific implementation of the mediator pattern - given a string name, it calls a function and returns a promise with the functions response.
 
-# Usage
+It accomplishes the same goals as many dependency injection libraries, but focuses only on functions, and always returning asynchronous responses.
 
-## Create a new app context
+Originally inspired by Nicholas Zakas's talk on "[Creating A Scalable JavaScript Application Architecture](http://youtu.be/b5pFv9NB9fs)", this library fills the role of what he called the "sandbox" more closely than it serves the purpose he had for the mediator pattern.
+
+If you want a similar library to be used for broadcasting (something Mannish supported in older versions), I would recommend something like:
 
 ```js
-var mannish = require('mannish')
+function makeBroadcaster() {
+	const emitter = new EventEmitter()
 
-var appContext = mannish()
+	return {
+		emit(...args) {
+			emitter.emit(...args)
+		},
+		on(name, listener) {
+			emitter.on(name, listener)
+
+			return function removeListener() {
+				emitter.removeListener(name, listener)
+			}
+		}
+	}
+}
 ```
 
-## Subscribe, adding yourself as a provider
+Mannish focuses on calling single functions and getting a response back.
+
+# API
+
+## `mediator = mannish()`
+
+This library exports a single function that returns a new mediator.
+
+<!-- js
+const mannish = require('./')
+
+const mediator = mannish()
+-->
+
+## `mediator.provide(name, function)`
+
+Supplies a function to handle all calls to the given name.
 
 ```js
-appContext.subscribe('unixTimestamp', function(someDate, cb) {
-	cb(null, Math.round(someDate.getTime() / 1000))
+mediator.provide('pie', recipe => {
+	Array.isArray(recipe.contents) // => true
+
+	return 'I am a sweet pie'
 })
 ```
 
-Mannish uses promises internally to keep Zalgo at bay and prevent multiple subscribers from answering the same request.
+## `promise = mediator.call(name, ...arguments)`
 
-If you just want to subscribe to events and it doesn't make sense to provide a response value, just ignore the callback.
+Call whatever function is registered with the string `name`, with all other arguments being passed straight through.
 
-If you want to use promises, then instead of calling the callback you can just return a promise instead.
-
-## Publish a request for something
+No matter what the other function returns, `call` returns a `Promise` containing the value it resolves to.
 
 ```js
-appContext.publish('unixTimestamp', new Date(), function(err, result) {
-	// result is a ten-digit number, wheee
+const recipe = { type: 'recipe', contents: [ 'Step 1: find a real cook book' ] }
+mediator.call('pie', recipe).then(pie => {
+	pie // => 'I am a sweet pie'
 })
 ```
 
-The callback function is totally optional.  You can publish data objects to the app without any need for a response.
+# Open questions
 
-```js
-appContext.subscribe('flex', function(muscle) {
-	muscle.squeeze()
-})
-
-appContext.publish('flex', new Muscle())
-```
-
-## Remove all subscribers
-
-```js
-appContext.removeAllListeners()
-```
+- Is it ever necessary to remove all providers?
+- Is it ever necessary to remove a single provider?
+	- If so, should anyone be able to remove the provider, or just the code that added it? (Should the mediator expose `removeProvider` or should `provide` return a removal function?)
 
 # License
 
 [WTFPL](http://wtfpl2.com/)
-
-[![Build Status](https://travis-ci.org/TehShrike/mannish.svg?branch=master)](https://travis-ci.org/TehShrike/mannish)

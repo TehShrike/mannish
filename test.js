@@ -1,142 +1,115 @@
-const test = require('tape')
+function test(name, fn) {
+	return require('tape')(name, { timeout: 1000 }, fn)
+}
 const mannish = require('./')
 
-test('basic event-style', t => {
-	t.plan(1)
+test('Basic functionality: should call the right function and get the response', t => {
+	t.plan(2)
 
-	const app = mannish()
+	const mediator = mannish()
 
-	app.subscribe('book', function(book) {
+	mediator.provide('book', function(book) {
 		t.equal(book, 'enchiridion')
-		t.end()
+		return Promise.resolve('mathematical')
 	})
 
-	app.subscribe('barbecue', function() {
-		t.fail('not barbecue time')
-	})
+	mediator.provide('unrelated book', () => t.fail(`This function shouldn't be called`))
 
-	app.publish('book', 'enchiridion')
-})
-
-test('response style', t => {
-	t.plan(3)
-
-	const app = mannish()
-
-	app.subscribe('book', function(book, cb) {
-		t.equal(book, 'enchiridion')
-		cb(null, 'mathematical')
-	})
-
-	app.publish('book', 'enchiridion', function getResponse(err, response) {
-		t.notOk(err)
+	mediator.call('book', 'enchiridion').then(response => {
 		t.equal(response, 'mathematical')
 		t.end()
 	})
 })
 
-test('aliases', t => {
-	t.plan(2)
+test('Should receive a non-promise response, too', t => {
+	const mediator = mannish()
 
-	const app = mannish()
+	mediator.provide('book', () => 'mathematical')
 
-	t.equal(app.subscribe, app.provide)
-	t.equal(app.publish, app.request)
-
-	t.end()
+	mediator.call('book', 'enchiridion').then(response => {
+		t.equal(response, 'mathematical')
+		t.end()
+	})
 })
 
-test('error response', t => {
-	t.plan(2)
+test('Should receive rejected promise', t => {
+	const mediator = mannish()
 
-	const app = mannish()
-
-	app.subscribe('loot', function(location, cb) {
-		cb(new Error('skeleton'))
+	mediator.provide('loot', function(location) {
+		t.equal(location, 'from the dungeon please')
+		return Promise.reject(new Error('skeleton'))
 	})
 
-	app.publish('loot', 'from the dungeon please', function getResponse(err, response) {
+	mediator.call('loot', 'from the dungeon please').catch(err => {
 		t.ok(err instanceof Error, 'err is an Error')
 		t.equal(err.message, 'skeleton')
 		t.end()
 	})
 })
 
-test('removes listeners', t => {
-	const app = mannish()
+test(`Should throw an error on 'call' if there is no listener`, t => {
+	const mediator = mannish()
 
-	let aCalled = 0
-
-	app.subscribe('burrito', function() {
-		t.equal(aCalled, 0, "burrito's subscription should only be called once")
-		aCalled++
-		t.end()
-	})
-	app.publish('burrito')
-
-	app.removeAllListeners()
-
-	app.publish('burrito')
+	mediator.call('unhandled').then(
+		() => t.fail('Should not have succeeded'),
+		err => {
+			t.ok(err instanceof Error, 'err is an Error')
+			t.ok(err.message.includes('No provider'))
+			t.end()
+		}
+	)
 })
 
-test('remove single listener', t => {
-	const app = mannish()
+test(`Adding a second provider should cause an error`, t => {
+	const mediator = mannish()
 
-	t.plan(4)
-
-	let aCalled = 0
-	let bCalled = 0
-
-	const unsubscribeA = app.subscribe('burrito', function() {
-		aCalled++
-		t.equal(aCalled, 1, "burrito's A subscription should only be called once")
-	})
-	app.subscribe('burrito', function(cb) {
-		bCalled++
-		cb(null, bCalled)
-	})
-
-	app.publish('burrito', function(err, bResponse) {
-		t.equal(bResponse, 1)
-	})
-
-	unsubscribeA()
-
-	app.publish('burrito', function(err, bResponse) {
-		t.equal(bResponse, 2)
-		t.equal(bCalled, 2, "burrito's B subscription should be called twice")
-		t.end()
-	})
+	mediator.provide('important', () => {})
+	t.throws(() => mediator.provide('important', () => {}), /already/)
+	t.end()
 })
 
-test('multiple arguments', t => {
-	const app = mannish()
+test(`Should throw an error if the provider is not a function`, t => {
+	const mediator = mannish()
 
-	app.subscribe('taco', function(first, second, cb) {
+	t.throws(() => mediator.provide('important', 'o hai'), /not a function/)
+	t.end()
+})
+
+test(`Should throw an error if the name is not a string`, t => {
+	const mediator = mannish()
+
+	t.throws(() => mediator.provide({}, () => {}), /a string/)
+	t.end()
+})
+
+test('Should work with multiple arguments', t => {
+	const mediator = mannish()
+
+	mediator.provide('taco', function(first, second) {
 		t.equal(first, 'first')
 		t.equal(second, 'second')
-		cb('response')
+		return Promise.resolve('response')
 	})
-	app.publish('taco', 'first', 'second', function(response) {
+	mediator.call('taco', 'first', 'second').then(response => {
 		t.equal(response, 'response')
 		t.end()
 	})
 })
 
-test('multiple arguments, several of which are functions', t => {
-	const app = mannish()
+test('Should work with multiple arguments, several of which are functions', t => {
+	const mediator = mannish()
 
 	function one() {}
 	function two() {}
 
-	app.subscribe('taco', function(first, second, argone, argtwo, cb) {
+	mediator.provide('taco', function(first, second, argone, argtwo) {
 		t.equal(first, 'first')
 		t.equal(second, 'second')
 		t.equal(argone, one)
 		t.equal(argtwo, two)
-		cb('response')
+		return Promise.resolve('response')
 	})
-	app.publish('taco', 'first', 'second', one, two, function(response) {
+	mediator.call('taco', 'first', 'second', one, two).then(response => {
 		t.equal(response, 'response')
 		t.end()
 	})
