@@ -28,9 +28,13 @@ Supplies a function to handle all calls to the given name.
 
 ```js
 mediator.provide('pie', recipe => {
-	Array.isArray(recipe.contents) // => true
-
-	return 'I am a sweet pie'
+	if (Array.isArray(recipe.contents)) {
+		// you can return a plain value
+		return 'I am a sweet pie'
+	} else {
+		// or a promise/thenable
+		return Promise.resolve('probably just sour grapes anyway')
+	}
 })
 ```
 

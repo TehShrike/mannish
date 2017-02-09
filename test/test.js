@@ -3,12 +3,10 @@ function test(name, fn) {
 }
 const mannish = require('../')
 
-test('Basic functionality: should call the right function and get the response', t => {
-	t.plan(2)
-
+test(`Basic functionality: should call the right function and get the response`, t => {
 	const mediator = mannish()
 
-	mediator.provide('book', function(book) {
+	mediator.provide('book', book => {
 		t.equal(book, 'enchiridion')
 		return Promise.resolve('mathematical')
 	})
@@ -21,7 +19,7 @@ test('Basic functionality: should call the right function and get the response',
 	})
 })
 
-test('Should receive a non-promise response, too', t => {
+test(`Should receive a non-promise response, too`, t => {
 	const mediator = mannish()
 
 	mediator.provide('book', () => 'mathematical')
@@ -32,10 +30,10 @@ test('Should receive a non-promise response, too', t => {
 	})
 })
 
-test('Should receive rejected promise', t => {
+test(`Should receive rejected promise`, t => {
 	const mediator = mannish()
 
-	mediator.provide('loot', function(location) {
+	mediator.provide('loot', location => {
 		t.equal(location, 'from the dungeon please')
 		return Promise.reject(new Error('skeleton'))
 	})
@@ -50,7 +48,7 @@ test('Should receive rejected promise', t => {
 test(`Errors thrown in the provider should result in rejected responses`, t => {
 	const mediator = mannish()
 
-	mediator.provide('loot', function(location) {
+	mediator.provide('loot', location => {
 		throw new Error('monster')
 	})
 
@@ -61,10 +59,10 @@ test(`Errors thrown in the provider should result in rejected responses`, t => {
 	})
 })
 
-test('Should work with multiple arguments', t => {
+test(`Should work with multiple arguments`, t => {
 	const mediator = mannish()
 
-	mediator.provide('taco', function(first, second) {
+	mediator.provide('taco', (first, second) => {
 		t.equal(first, 'first')
 		t.equal(second, 'second')
 		return Promise.resolve('response')
@@ -75,13 +73,13 @@ test('Should work with multiple arguments', t => {
 	})
 })
 
-test('Should work with multiple arguments, several of which are functions', t => {
+test(`Should work with multiple arguments, several of which are functions`, t => {
 	const mediator = mannish()
 
 	function one() {}
 	function two() {}
 
-	mediator.provide('taco', function(first, second, argone, argtwo) {
+	mediator.provide('taco', (first, second, argone, argtwo) => {
 		t.equal(first, 'first')
 		t.equal(second, 'second')
 		t.equal(argone, one)
