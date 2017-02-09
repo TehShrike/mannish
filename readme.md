@@ -4,7 +4,7 @@
 
 This is a fairly specific implementation of the mediator pattern - given a string name, it calls a function and returns a promise with the function's response.
 
-It accomplishes the same goals as many dependency injection libraries, but focuses only on functions, and always returning asynchronous responses.
+It accomplishes the same goals as many dependency injection libraries (loose coupling, better testability), but focuses only on functions, and always returning asynchronous responses.
 
 Originally inspired by Nicholas Zakas's talk on "[Creating A Scalable JavaScript Application Architecture](http://youtu.be/b5pFv9NB9fs)", this library fills the role of what he called the "sandbox" more closely than it serves the purpose he had for the mediator pattern.
 
