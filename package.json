@@ -1,6 +1,6 @@
 {
   "name": "mannish",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "Mannish, the Manly Mediator",
   "main": "index.js",
   "scripts": {
@@ -26,8 +26,7 @@
     "jsmd": "0.3.1",
     "tape": "^4.0.0"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "browserify": {
     "transform": [
       [
