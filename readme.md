@@ -1,6 +1,6 @@
 # Mannish the Manly Mediator
 
-![](mannish.jpg)
+![Adventure Time!](mannish.jpg)
 
 This is a fairly specific implementation of the mediator pattern - given a string name, it calls a function and returns a promise with the function's response.
 
