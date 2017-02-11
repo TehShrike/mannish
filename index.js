@@ -1,70 +1,34 @@
-const denodeify = require('then-denodeify')
-const nodeify = require('then-nodeify')
+module.exports = function createMediator() {
+	const providers = Object.create(null)
 
-module.exports = function createAppContext() {
-	const eventsToEventListeners = Object.create(null)
-	const unsubscribeFunctions = []
+	function call(name, ...args) {
+		if (providers[name]) {
+			try {
+				const response = providers[name](...args)
 
-	function callListeners(event, ...eventArguments) {
-		const args = []
-
-		eventArguments.forEach((argument, i) => {
-			const isCallbackFunction = i === eventArguments.length - 1 && typeof argument === 'function'
-
-			if (!isCallbackFunction) {
-				args.push(argument)
+				return Promise.resolve(response)
+			} catch (err) {
+				return Promise.reject(err)
 			}
-		})
-
-		return new Promise((resolve, reject) => {
-			if (eventsToEventListeners[event]) {
-				values(eventsToEventListeners[event]).forEach(listener => {
-					listener(...args).then(resolve, reject)
-				})
-			}
-		})
-	}
-	function subscribe(event, cb) {
-		const unsubscribeEvent = addListener(eventsToEventListeners, event, cb)
-		unsubscribeFunctions.push(unsubscribeEvent)
-
-		return function unsubscribe() {
-			unsubscribeEvent()
-			const index = unsubscribeFunctions.indexOf(unsubscribeEvent)
-			if (index !== -1) {
-				unsubscribeFunctions.splice(index, 1)
-			}
+		} else {
+			return Promise.reject(new Error(`No provider found for "${name}"`))
 		}
 	}
 
-	function removeAllListeners() {
-		unsubscribeFunctions.forEach(fn => fn())
+	function provide(name, fn) {
+		if (typeof fn !== 'function') {
+			throw new Error(`${fn} is not a function`)
+		} else if (typeof name !== 'string') {
+			throw new Error(`The provider name must be a string`)
+		} else if (providers[name]) {
+			throw new Error(`There is already a provider for "${name}"`)
+		} else {
+			providers[name] = fn
+		}
 	}
-
-	const promiseyPublish = nodeify(callListeners)
 
 	return {
-		subscribe: subscribe,
-		provide: subscribe,
-		publish: promiseyPublish,
-		request: promiseyPublish,
-		removeAllListeners: removeAllListeners
+		provide,
+		call
 	}
-}
-
-function addListener(eventsToEventListeners, event, cb) {
-	const id = Math.random().toString().slice(2)
-	if (!eventsToEventListeners[event]) {
-		eventsToEventListeners[event] = {}
-	}
-
-	eventsToEventListeners[event][id] = denodeify(cb)
-
-	return function unsubscribe() {
-		delete eventsToEventListeners[event][id]
-	}
-}
-
-function values(obj) {
-	return Object.keys(obj).map(key => obj[key])
 }
