@@ -53,6 +53,29 @@ mediator.call('pie', recipe).then(pie => {
 })
 ```
 
+## `mediator.provideSync(name, function)`
+
+Same as `provide`, except the function is expected to return a value instead of a promise.
+
+```js
+mediator.provideSync('pie', recipe => {
+	if (Array.isArray(recipe.contents)) {
+		return 'Smushed ' + recipe.contents[0]
+	} else {
+		throw new Error('ERROOOOR')
+	}
+})
+```
+
+## `value = mediator.callSync(name, ...arguments)`
+
+Calls the synchronous function that was provided via `provideSync`, and returns whatever value it returns.  Thrown errors are not swallowed.
+
+```js
+const grapeJuiceRecipe = { type: 'recipe', contents: [ 'Fresh grapes' ] }
+mediator.callSync('pie', grapeJuiceRecipe) // => 'Smushed Fresh grapes'
+```
+
 # Open questions
 
 - Is it ever necessary to remove all providers?

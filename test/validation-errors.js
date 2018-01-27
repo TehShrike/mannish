@@ -8,7 +8,7 @@ test(`Should throw an error on 'call' if there is no listener`, t => {
 		() => t.fail('Should not have succeeded'),
 		err => {
 			t.ok(err instanceof Error, 'err is an Error')
-			t.ok(err.message.includes('No provider'))
+			t.ok(err.message.includes('No async provider'))
 			t.end()
 		}
 	)

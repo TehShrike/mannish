@@ -91,3 +91,14 @@ test(`Should work with multiple arguments, several of which are functions`, t =>
 		t.end()
 	})
 })
+
+test(`Provide and call synchronous functions`, t => {
+	const mediator = mannish()
+
+	mediator.provideSync('getThingy', input => 'aw yeah ' + input)
+	const output = mediator.callSync('getThingy', 'dawg')
+
+	t.equal(output, 'aw yeah dawg')
+
+	t.end()
+})
