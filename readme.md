@@ -22,9 +22,11 @@ const mannish = require('./')
 const mediator = mannish()
 -->
 
-## `mediator.provide(name, function)`
+## `removeProvider = mediator.provide(name, function)`
 
 Supplies a function to handle all calls to the given name.
+
+`removeProvider` is a function that, if you call it, will cause the provider to stop handling calls to that name.
 
 ```js
 mediator.provide('pie', recipe => {
@@ -53,7 +55,7 @@ mediator.call('pie', recipe).then(pie => {
 })
 ```
 
-## `mediator.provideSync(name, function)`
+## `removeProvider = mediator.provideSync(name, function)`
 
 Same as `provide`, except the function is expected to return a value instead of a promise.
 
@@ -79,8 +81,6 @@ mediator.callSync('pie', grapeJuiceRecipe) // => 'Smushed Fresh grapes'
 # Open questions
 
 - Is it ever necessary to remove all providers?
-- Is it ever necessary to remove a single provider?
-	- If so, should anyone be able to remove the provider, or just the code that added it? (Should the mediator expose `removeProvider` or should `provide` return a removal function?)
 
 # License
 
