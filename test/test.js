@@ -1,9 +1,12 @@
 function test(name, fn) {
-	return require(`tape`)(name, { timeout: 1000 }, fn)
+	return require(`tape`)(name, { timeout: 1000 }, async t => {
+		await fn(t)
+		t.end()
+	})
 }
 const mannish = require(`../`)
 
-test(`Basic functionality: should call the right function and get the response`, t => {
+test(`Basic functionality: should call the right function and get the response`, async t => {
 	const mediator = mannish()
 
 	mediator.provide(`book`, book => {
@@ -13,24 +16,20 @@ test(`Basic functionality: should call the right function and get the response`,
 
 	mediator.provide(`unrelated book`, () => t.fail(`This function shouldn't be called`))
 
-	mediator.call(`book`, `enchiridion`).then(response => {
-		t.equal(response, `mathematical`)
-		t.end()
-	})
+	const response = await mediator.call(`book`, `enchiridion`)
+
+	t.equal(response, `mathematical`)
 })
 
-test(`Should receive a non-promise response, too`, t => {
+test(`Non-promise functions don't cause 'call' to return a promise`, t => {
 	const mediator = mannish()
 
 	mediator.provide(`book`, () => `mathematical`)
 
-	mediator.call(`book`, `enchiridion`).then(response => {
-		t.equal(response, `mathematical`)
-		t.end()
-	})
+	t.equal(mediator.call(`book`, `enchiridion`), `mathematical`)
 })
 
-test(`Should receive rejected promise`, t => {
+test(`Should receive rejected promise`, async t => {
 	const mediator = mannish()
 
 	mediator.provide(`loot`, location => {
@@ -38,28 +37,29 @@ test(`Should receive rejected promise`, t => {
 		return Promise.reject(new Error(`skeleton`))
 	})
 
-	mediator.call(`loot`, `from the dungeon please`).catch(err => {
+	await mediator.call(`loot`, `from the dungeon please`).catch(err => {
 		t.ok(err instanceof Error, `err is an Error`)
 		t.equal(err.message, `skeleton`)
-		t.end()
 	})
 })
 
-test(`Errors thrown in the provider should result in rejected responses`, t => {
+test(`Errors thrown in the provider should bubble normally`, t => {
 	const mediator = mannish()
+	t.plan(2)
 
 	mediator.provide(`loot`, location => {
 		throw new Error(`monster`)
 	})
 
-	mediator.call(`loot`, `from the dungeon please`).catch(err => {
+	try {
+		mediator.call(`loot`, `from the dungeon please`)
+	} catch (err) {
 		t.ok(err instanceof Error, `err is an Error`)
 		t.equal(err.message, `monster`)
-		t.end()
-	})
+	}
 })
 
-test(`Should work with multiple arguments`, t => {
+test(`Should work with multiple arguments`, async t => {
 	const mediator = mannish()
 
 	mediator.provide(`taco`, (first, second) => {
@@ -67,13 +67,12 @@ test(`Should work with multiple arguments`, t => {
 		t.equal(second, `second`)
 		return Promise.resolve(`response`)
 	})
-	mediator.call(`taco`, `first`, `second`).then(response => {
-		t.equal(response, `response`)
-		t.end()
-	})
+	const response = await mediator.call(`taco`, `first`, `second`)
+
+	t.equal(response, `response`)
 })
 
-test(`Should work with multiple arguments, several of which are functions`, t => {
+test(`Should work with multiple arguments, several of which are functions`, async t => {
 	const mediator = mannish()
 
 	function one() {}
@@ -86,38 +85,34 @@ test(`Should work with multiple arguments, several of which are functions`, t =>
 		t.equal(argtwo, two)
 		return Promise.resolve(`response`)
 	})
-	mediator.call(`taco`, `first`, `second`, one, two).then(response => {
-		t.equal(response, `response`)
-		t.end()
-	})
+
+	const response = await mediator.call(`taco`, `first`, `second`, one, two)
+
+	t.equal(response, `response`)
 })
 
 test(`Provide and call synchronous functions`, t => {
 	const mediator = mannish()
 
-	mediator.provideSync(`getThingy`, input => `aw yeah ` + input)
-	const output = mediator.callSync(`getThingy`, `dawg`)
+	mediator.provide(`getThingy`, input => `aw yeah ` + input)
+	const output = mediator.call(`getThingy`, `dawg`)
 
 	t.equal(output, `aw yeah dawg`)
-
-	t.end()
 })
 
 test(`Removing providers`, t => {
 	const mediator = mannish()
 
 	let called = 0
-	const remove = mediator.provideSync(`thingy`, () => {
+	const remove = mediator.provide(`thingy`, () => {
 		called++
 	})
 
-	mediator.callSync(`thingy`)
+	mediator.call(`thingy`)
 
 	remove()
 
-	t.throws(() => mediator.callSync(`thingy`), /provider found/)
+	t.throws(() => mediator.call(`thingy`), /provider found/)
 
 	t.equal(called, 1)
-
-	t.end()
 })
