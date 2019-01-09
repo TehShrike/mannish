@@ -3,15 +3,16 @@ const mannish = require('../')
 
 test(`Should throw an error on 'call' if there is no listener`, t => {
 	const mediator = mannish()
+	t.plan(2)
 
-	mediator.call('unhandled').then(
-		() => t.fail('Should not have succeeded'),
-		err => {
-			t.ok(err instanceof Error, 'err is an Error')
-			t.ok(err.message.includes('No async provider'))
-			t.end()
-		}
-	)
+	try {
+		mediator.call('unhandled')
+	} catch (err) {
+		t.ok(err instanceof Error, 'err is an Error')
+		t.ok(err.message.includes('No provider'))
+	}
+
+	t.end()
 })
 
 test(`Should throw an error when attempting to add a second provider`, t => {

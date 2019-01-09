@@ -2,7 +2,7 @@
 
 ![Adventure Time!](mannish.jpg)
 
-This is a fairly specific implementation of the mediator pattern - given a string name, it calls a function and returns a promise with the function's response.
+This is a fairly specific implementation of the mediator pattern - given a string name, it calls a function and returns that function's response.
 
 It accomplishes the same goals as many dependency injection libraries (loose coupling, better testability), but focuses only on functions.
 
@@ -11,6 +11,12 @@ Originally inspired by Nicholas Zakas's talk on "[Creating A Scalable JavaScript
 Mannish focuses on decoupling the calling of functions and getting a response back.
 
 # API
+
+```
+const mannish = require('mannish')
+// or
+import * as mannish from 'mannish'
+```
 
 ## `mediator = mannish()`
 
@@ -30,57 +36,25 @@ Supplies a function to handle all calls to the given name.
 
 ```js
 mediator.provide('pie', recipe => {
-	if (Array.isArray(recipe.contents)) {
-		// you can return a plain value
-		return 'I am a sweet pie'
-	} else {
-		// or a promise/thenable
-		return Promise.resolve('probably just sour grapes anyway')
-	}
+	// whatever you return is provided to the caller
+	return 'I am a sweet pie'
 })
 ```
 
-You can return either a plain value, or a promise/thenable.
-
-## `promise = mediator.call(name, ...arguments)`
+## `response = mediator.call(name, ...arguments)`
 
 Call whatever function is registered with the string `name`, with all other arguments being passed straight through.
 
-No matter what the other function returns, `call` returns a `Promise` containing the value it resolves to.
+`call` will return whatever value the provider returns.
 
 ```js
 const recipe = { type: 'recipe', contents: [ 'Step 1: find a real cook book' ] }
-mediator.call('pie', recipe).then(pie => {
-	pie // => 'I am a sweet pie'
-})
+mediator.call('pie', recipe) // => 'I am a sweet pie'
 ```
 
-## `removeProvider = mediator.provideSync(name, function)`
+# Usage tips
 
-Same as `provide`, except the function is expected to return a value instead of a promise.
-
-```js
-mediator.provideSync('pie', recipe => {
-	if (Array.isArray(recipe.contents)) {
-		return 'Smushed ' + recipe.contents[0]
-	} else {
-		throw new Error('ERROOOOR')
-	}
-})
-```
-
-## `value = mediator.callSync(name, ...arguments)`
-
-Calls the synchronous function that was provided via `provideSync`, and returns whatever value it returns.  Thrown errors are not swallowed.
-
-```js
-const grapeJuiceRecipe = { type: 'recipe', contents: [ 'Fresh grapes' ] }
-mediator.callSync('pie', grapeJuiceRecipe) // => 'Smushed Fresh grapes'
-```
-
-# Open questions
-
-- Is it ever necessary to remove all providers?
+Some of your providers will probably be asynchronous - I would recommend making your provider function an [async function expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/async_function) so that you don't have to worry about some edge case that causes your ostensibly-promise-returning providers to respond with a synchronous value or error.
 
 # License
 
