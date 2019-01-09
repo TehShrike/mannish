@@ -24,9 +24,11 @@ This library exports a single function that returns a new mediator.
 
 <!-- js
 const mannish = require('./')
-
-const mediator = mannish()
 -->
+
+```js
+const mediator = mannish()
+```
 
 ## `removeProvider = mediator.provide(name, function)`
 
