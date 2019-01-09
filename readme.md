@@ -2,6 +2,8 @@
 
 ![Adventure Time!](mannish.jpg)
 
+*[changelog](./changelog.md)*
+
 This is a fairly specific implementation of the mediator pattern - given a string name, it calls a function and returns that function's response.
 
 It accomplishes the same goals as many dependency injection libraries (loose coupling, better testability), but focuses only on functions.
