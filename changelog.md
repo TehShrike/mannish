@@ -1,3 +1,10 @@
+# 4.0.1
+
+- maintenance: drop browserify/babel dev dependencies
+- maintenance: bump testing library dependency versions
+- documentation: add `const mediator = mannish()` to readme example
+- documentation: add a link to this changelog
+
 # 4.0.0
 
 - drop `callSync` and `provideSync` and make `call` and `provide` synchronous
