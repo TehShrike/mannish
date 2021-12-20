@@ -14,7 +14,7 @@ Mannish focuses on decoupling the calling of functions and getting a response ba
 
 # API
 
-```
+```js
 const mannish = require('mannish')
 // or
 import * as mannish from 'mannish'
